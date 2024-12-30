@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"slices"
 	"strconv"
@@ -13,18 +14,21 @@ import (
 
 func main() {
 	fmt.Println("Advent of code day 2")
+	input := "input.txt"
+	Soluce(input)
+}
 
+func Soluce(filepath string) int {
+	var validReports int
 	// Open file
-	data, err := os.Open("input.txt")
+	data, err := os.Open(filepath)
 	if err != nil {
 		panic(err)
 	}
 	defer data.Close()
 
-	fmt.Println("Opening input.txt")
+	fmt.Println("Opening ", filepath)
 	scanner := bufio.NewScanner(data)
-
-	var validReports int
 
 	// Rules :
 	//The levels are either all increasing or all decreasing.
@@ -32,29 +36,40 @@ func main() {
 
 	for scanner.Scan() {
 		currReport := strings.Split(scanner.Text(), " ")
-		if IsValidReport(currReport) {
+		var convertedReport []int
+		for _, i := range currReport {
+			i, _ := strconv.Atoi(i)
+			convertedReport = append(convertedReport, i)
+		}
+		if IsValidReport(convertedReport) {
 			validReports += 1
 		}
-		//if !slices.IsSorted(currReportValues) {
-		//continue
-		//}
-		//validReports += 1
-		////for value := range currReportValues {
-
-		////}
 
 	}
-	//fmt.Println("Valid reports : ", validReports)
+	fmt.Println("Valid reports : ", validReports)
+	return validReports
 }
 
-func IsValidReport(report []string) bool {
-	if !IsSorted(report) || !IsSafeDistance(report) {
-		return false
+func IsSafe(report []int) bool {
+	for i := 0; i < len(report); i++ {
+		clone := slices.Clone(report)
+		subset := slices.Delete(clone, i, i+1)
+		if IsSorted(subset) && IsSafeDistance(subset) {
+			return true
+		}
 	}
 	return false
 }
 
-func IsSorted(report []string) bool {
+func IsValidReport(report []int) bool {
+	if IsSorted(report) && IsSafeDistance(report) {
+		return true
+	} else {
+		return IsSafe(report)
+	}
+}
+
+func IsSorted(report []int) bool {
 	if slices.IsSorted(report) {
 		return true
 	}
@@ -62,22 +77,22 @@ func IsSorted(report []string) bool {
 	sorted := slices.Clone(report)
 	slices.Sort(sorted)
 	slices.Reverse(sorted)
-
 	return slices.Equal(sorted, report)
 
 }
 
-func IsSafeDistance(report []string) bool {
+func IsSafeDistance(report []int) bool {
 	previous_value := -1
 	for _, value := range report {
 		if previous_value == -1 {
-			previous_value, _ = strconv.Atoi(value)
+			previous_value = value
 			continue
 		}
-		value, _ := strconv.Atoi(value)
-		difference := previous_value - value
+		value := value
+		difference := int(math.Abs(float64(previous_value - value)))
 
 		if !(1 <= difference && difference <= 3) {
+			// Difference is not in range
 			return false
 		}
 		previous_value = value
