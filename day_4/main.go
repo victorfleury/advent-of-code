@@ -16,7 +16,6 @@ var Search_Directions = []Direction{
 	Direction{-1, 0},
 	Direction{-1, 1},
 	Direction{0, -1},
-	//Direction{0, 0},
 	Direction{0, 1},
 	Direction{1, -1},
 	Direction{1, 0},
@@ -32,8 +31,10 @@ var New_Directions = []Direction{
 
 func main() {
 	fmt.Println("Advent of code day 4")
-	result := SolucePart2("input.txt")
-	fmt.Println("Result ", result)
+	result := Soluce("input.txt")
+	fmt.Println("Result Part 1", result)
+	result = SolucePart2("input.txt")
+	fmt.Println("Result Part 2", result)
 }
 
 func Soluce(filepath string) int {
@@ -110,7 +111,6 @@ func SolucePart2(filepath string) int {
 
 func getX(grid []string, row, col int) bool {
 
-	fmt.Println("DATA ", row, col)
 	if row <= 0 || row >= len(grid)-1 || col <= 0 || col >= len(grid[0])-1 {
 		return false
 	}
@@ -119,9 +119,13 @@ func getX(grid []string, row, col int) bool {
 	bottom_left := grid[row+1][col-1]
 	bottom_right := grid[row+1][col+1]
 
-	if (string(top_left)+string(bottom_right) == "MS" || string(top_left)+string(bottom_right) == "SM") && (string(top_right)+string(bottom_left) == "MS" || string(top_right)+string(bottom_left) == "SM") {
-		fmt.Println("Found")
+	if isPattern(top_left, bottom_right) && isPattern(top_right, bottom_left) {
 		return true
 	}
 	return false
+}
+
+// Helper function to check if two characters form the pattern "MS" or "SM"
+func isPattern(a, b byte) bool {
+	return (a == 'M' && b == 'S') || (a == 'S' && b == 'M')
 }
