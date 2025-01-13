@@ -32,7 +32,7 @@ var New_Directions = []Direction{
 
 func main() {
 	fmt.Println("Advent of code day 4")
-	result := Soluce("input.txt")
+	result := SolucePart2("input.txt")
 	fmt.Println("Result ", result)
 }
 
@@ -52,8 +52,8 @@ func Soluce(filepath string) int {
 	)
 
 	var result int
-	for row := range grid {
-		for col := range grid[0] {
+	for row := 0; row < len(grid)-1; row++ {
+		for col := 0; col < len(grid[0])-1; col++ {
 			if string(grid[row][col]) == "X" {
 				for _, d := range Search_Directions {
 					word := getWord(grid, row, col, d)
@@ -105,15 +105,23 @@ func SolucePart2(filepath string) int {
 			}
 		}
 	}
-	return 0
+	return result
 }
 
 func getX(grid []string, row, col int) bool {
 
-	for _, d := range New_Directions {
-		if !strings.Contains(string(grid[row-d.y][col-d.x]), "MS") {
-			return false
-		}
+	fmt.Println("DATA ", row, col)
+	if row <= 0 || row >= len(grid)-1 || col <= 0 || col >= len(grid[0])-1 {
+		return false
 	}
-	return true
+	top_left := grid[row-1][col-1]
+	top_right := grid[row-1][col+1]
+	bottom_left := grid[row+1][col-1]
+	bottom_right := grid[row+1][col+1]
+
+	if (string(top_left)+string(bottom_right) == "MS" || string(top_left)+string(bottom_right) == "SM") && (string(top_right)+string(bottom_left) == "MS" || string(top_right)+string(bottom_left) == "SM") {
+		fmt.Println("Found")
+		return true
+	}
+	return false
 }
